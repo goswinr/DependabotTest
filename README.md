@@ -2,6 +2,8 @@
 
 To demonstrate that dependabot is not able to update FSharp.Core
 
+see https://github.com/dependabot/dependabot-core/issues/10883
+
 ## Log
 
 ```log
