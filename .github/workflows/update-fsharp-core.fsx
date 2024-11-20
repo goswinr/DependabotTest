@@ -1,16 +1,10 @@
 // This script will update all  .fsproj  files in the repository to the latest version of FSharp.Core.
 // to address https://github.com/dependabot/dependabot-core/issues/10883
 
-// #r "nuget: CliWrap, 3.6.7"
-// open CliWrap
-
 open System
 open System.IO
 open System.Net.Http
 open System.Text.Json
-open System.Threading.Tasks
-open System.Text.RegularExpressions
-
 let updateFsprojFiles() =
 
     let tryBetween (firstSplitter:string) (secondSplitter:string) (stringToSplit:string): option<string>  =
@@ -59,25 +53,30 @@ let updateFsprojFiles() =
                     let newLine = ln.Replace($"Version=\"{v}\"", $"Version=\"{newVersion}\"")
                     lns.[i] <- newLine
                     fixedFile <- true
-                    let info = $"    FSharp.Core.{v} -> {newVersion}"
+                    let info = $" - FSharp.Core.{v} -> {newVersion}"
                     printfn "%s" info
                     if msg = "" then
                         msg <-  info
                     else
                         msg <- $"{msg}{Environment.NewLine}{info}"
                 else
-                    printfn $"{file}: FSharp.Core is already up to date"
+                    printfn $" - FSharp.Core is already up to date"
 
             | None -> ()
         if fixedFile then
             File.WriteAllLines(file, lns, Text.Encoding.UTF8)
 
-    if msg <> "" then
-        IO.File.WriteAllText("./.github/workflows/update-fsharp-core.log", msg)
-        printfn "Updated the following files:"
-        printfn "%s" msg
-    else
-        printfn "No files were updated"
+
+    // Print variables to console
+    printfn $"::set-output name=fsharpCoreNewVersion::{newVersion}"
+    printfn $"::set-output name=fsharpCoreUpdatedFiles::{msg}"
+
+    // if msg <> "" then
+    //     IO.File.WriteAllText("./.github/workflows/update-fsharp-core.log", msg)
+    //     printfn "Updated the following files:"
+    //     printfn "%s" msg
+    // else
+    //     printfn "No files were updated"
 
 
 
