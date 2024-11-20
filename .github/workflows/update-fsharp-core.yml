@@ -23,21 +23,21 @@ jobs:
       run: dotnet fsi ./.github/workflows/update-fsharp-core.fsx
 
 
-    - name: Configure Git committer
+    - name: Read environment file
+      id: read_env
       run: |
-        git config --global user.name 'Update-FSharp.Core[bot]'
-        git config --global user.email 'Update-FSharp.Core[bot]@users.noreply.github.com'
+        cat ./.github/workflows/update-fsharp-core.env >> $GITHUB_ENV
 
-    # - name: Commit changes
-    #   run: |
-    #     git add .
-    #     git commit -m "Update FSharp.Core to ${{ steps.runFsxScript.outputs.fsharpCoreNewVersion }}"
+    - name: Delete environment file
+      run: rm ./.github/workflows/update-fsharp-core.env
 
     - name: Create Pull Request
       uses: peter-evans/create-pull-request@v7
       with:
         token: ${{ secrets.GITHUB_TOKEN }}
-        commit-message: update FSharp.Core to ${{ steps.runFsxScript.outputs.fsharpCoreNewVersion }}
+        commit-message: update FSharp.Core to ${{ env.fsharpCoreNewVersion }}
         branch: update-fsharp-core-bot
-        title: update FSharp.Core to ${{ steps.runFsxScript.outputs.fsharpCoreNewVersion }}
-        body: ${{ steps.runFsxScript.outputs.fsharpCoreUpdatedFiles }}
+        title: update FSharp.Core to ${{ env.fsharpCoreNewVersion }}
+        body: ${{ env.fsharpCoreUpdatedFiles }}
+        author: update-fsharp-core.yml
+        committer: update-fsharp-core.yml

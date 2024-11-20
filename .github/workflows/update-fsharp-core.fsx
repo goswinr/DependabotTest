@@ -68,16 +68,12 @@ let updateFsprojFiles() =
 
 
     // Print variables to console
-    printfn $"::set-output name=fsharpCoreNewVersion::{newVersion}"
-    printfn $"::set-output name=fsharpCoreUpdatedFiles::{msg}"
-
-    // if msg <> "" then
-    //     IO.File.WriteAllText("./.github/workflows/update-fsharp-core.log", msg)
-    //     printfn "Updated the following files:"
-    //     printfn "%s" msg
-    // else
-    //     printfn "No files were updated"
-
+    // https://github.blog/changelog/2022-10-11-github-actions-deprecating-save-state-and-set-output-commands/
+    // printfn $"::set-output name=fsharpCoreNewVersion::{newVersion}"
+    // printfn $"::set-output name=fsharpCoreUpdatedFiles::{msg}"
+    // Write outputs to environment file
+    let envFilePath = "./.github/workflows/update-fsharp-core.env"
+    File.WriteAllLines(envFilePath, [| $"fsharpCoreNewVersion={newVersion}"; $"fsharpCoreUpdatedFiles={msg}" |])
 
 
 
