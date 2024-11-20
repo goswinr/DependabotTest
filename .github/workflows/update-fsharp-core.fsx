@@ -1,6 +1,9 @@
 // This script will update all  .fsproj  files in the repository to the latest version of FSharp.Core.
 // to address https://github.com/dependabot/dependabot-core/issues/10883
 
+// #r "nuget: CliWrap, 3.6.7"
+// open CliWrap
+
 open System
 open System.IO
 open System.Net.Http
@@ -48,13 +51,15 @@ let updateFsprojFiles() =
     for file in fsprojFiles do
         printfn "Processing %s" file
         let lns = File.ReadAllLines(file)
+        let mutable fixedFile = false
         for i,ln in Seq.indexed lns do
             match extractVersion ln with
             | Some(v) ->
                 if v <> newVersion then
                     let newLine = ln.Replace($"Version=\"{v}\"", $"Version=\"{newVersion}\"")
                     lns.[i] <- newLine
-                    let info = $"{file}: FSharp.Core.{v} -> {newVersion}"
+                    fixedFile <- true
+                    let info = $"    FSharp.Core.{v} -> {newVersion}"
                     printfn "%s" info
                     if msg = "" then
                         msg <-  info
@@ -64,9 +69,17 @@ let updateFsprojFiles() =
                     printfn $"{file}: FSharp.Core is already up to date"
 
             | None -> ()
-        if msg <> "" then
+        if fixedFile then
             File.WriteAllLines(file, lns, Text.Encoding.UTF8)
 
-    File.WriteAllText("update-fsharp-core.log", msg, Text.Encoding.UTF8)
+    if msg <> "" then
+        IO.File.WriteAllText("./.github/workflows/update-fsharp-core.log", msg)
+        printfn "Updated the following files:"
+        printfn "%s" msg
+    else
+        printfn "No files were updated"
+
+
+
 
 updateFsprojFiles()
