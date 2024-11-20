@@ -19,31 +19,25 @@ jobs:
         dotnet-version: '9.0.x'
 
     - name: Run F# script
+      id: runFsxScript
       run: dotnet fsi ./.github/workflows/update-fsharp-core.fsx
 
-    # - name: Check if log file is not empty
-    #   id: check_log
-    #   run: |
-    #     if [ -s ./.github/workflows/update-fsharp-core.log ]; then
-    #       echo "log_not_empty=true" >> $GITHUB_ENV
-    #     else
-    #       echo "log_not_empty=false" >> $GITHUB_ENV
-    #     fi
+
+    - name: Configure Git committer
+      run: |
+        git config --global user.name 'Update-FSharp.Core[bot]'
+        git config --global user.email 'Update-FSharp.Core[bot]@users.noreply.github.com'
 
     # - name: Commit changes
-    #   if: env.log_not_empty == 'true'
     #   run: |
-    #     git config --global user.name 'Update-FSharp.Core[bot]'
-    #     git config --global user.email 'Update-FSharp.Core[bot]@users.noreply.github.com'
     #     git add .
-    #     git commit -m "Update FSharp.Core via Bot"
+    #     git commit -m "Update FSharp.Core to ${{ steps.runFsxScript.outputs.fsharpCoreNewVersion }}"
 
     - name: Create Pull Request
       uses: peter-evans/create-pull-request@v7
       with:
         token: ${{ secrets.GITHUB_TOKEN }}
-        commit-message: Update FSharp.Core via Bot
+        commit-message: update FSharp.Core to ${{ steps.runFsxScript.outputs.fsharpCoreNewVersion }}
         branch: update-fsharp-core-bot
-        title: Update FSharp.Core via Bot
-        body: |
-          $(cat ./.github/workflows/update-fsharp-core.log)
+        title: update FSharp.Core to ${{ steps.runFsxScript.outputs.fsharpCoreNewVersion }}
+        body: ${{ steps.runFsxScript.outputs.fsharpCoreUpdatedFiles }}
