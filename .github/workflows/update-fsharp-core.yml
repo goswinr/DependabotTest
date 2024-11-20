@@ -1,4 +1,4 @@
-name: Update FSharp.Core
+name: Update FSharp.Core 2
 
 on:
   schedule:
@@ -6,7 +6,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  run-fsx-script:
+  Update-FSharp-Core-fsx:
     runs-on: ubuntu-latest
 
     steps:
